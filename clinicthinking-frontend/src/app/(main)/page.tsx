@@ -1,4 +1,3 @@
-// src/app/page.tsx
 "use client";
 import { useState } from "react";
 import { Navbar, NavBody, NavItems, NavbarLogo, NavbarButton, MobileNav, MobileNavHeader, MobileNavToggle, MobileNavMenu } from "@/components/ui/resizable-navbar";
@@ -14,7 +13,7 @@ import Trustedn from "@/components/landing/TrustedBy";
 
 
 export default function LandingPage() {
-  const [isOpen, setIsOpen] = useState(false); // Tambahkan state ini di atas return
+  const [isOpen, setIsOpen] = useState(false);
   const navItems = [
     { name: "About", link: "#about" },
     { name: "Product", link: "#product" },

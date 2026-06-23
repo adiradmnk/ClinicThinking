@@ -68,7 +68,6 @@ export const Navbar = ({ children, className }: NavbarProps) => {
   return (
     <motion.div
       ref={ref}
-      // IMPORTANT: Change this to class of `fixed` if you want the navbar to be fixed
       className={cn("fixed inset-x-0 top-5 z-40 w-full", className)}
     >
       {React.Children.map(children, (child) =>
@@ -117,7 +116,7 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
-    <div // Ubah dari motion.div ke div agar lebih stabil untuk link
+    <div 
       className={cn(
         "absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-zinc-600 lg:flex lg:space-x-2",
         className,
@@ -128,7 +127,6 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
           onMouseEnter={() => setHovered(idx)}
           onMouseLeave={() => setHovered(null)}
           onClick={(e) => {
-            // Opsional: Jika ingin memastikan scroll berjalan mulus lewat kode
             onItemClick?.(); 
           }}
           className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300 cursor-pointer z-50"
