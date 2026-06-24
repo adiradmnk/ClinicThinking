@@ -1,7 +1,7 @@
 
 
 export interface AIAction {
-  type: 'ADD_NODE' | 'ADD_EDGE' | 'UPDATE_NODE' | 'DELETE_NODE';
+  type: 'add_node' | 'add_edge' | 'update_node' | 'delete_node';
   sessionId: string;
   data: any;
 }
@@ -15,7 +15,7 @@ export const parseAiData = (rawJson: string): AIAction | null => {
       return null;
     }
 
-    const validTypes = ['ADD_NODE', 'ADD_EDGE', 'UPDATE_NODE', 'DELETE_NODE'];
+    const validTypes = ['add_node', 'add_edge', 'update_node', 'delete_node'];
     if (!validTypes.includes(action.type)) {
       console.warn("Data AI tidak valid: Tipe action tidak dikenal.", action.type);
       return null;

@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Room, RoomEvent, Participant, DataPacket_Kind } from 'livekit-client';
-import { useWhiteboardStore } from '@/store/useWhiteboardStore';
-import { parseAiData } from '@/lib/data-parser'; // Import parser kita
+import { useWhiteboardStore, WhiteboardAction } from '@/store/useWhiteboardStore'; // Pastikan path benar
+import { parseAiData } from '@/lib/data-parser';
 
 export const useLiveKitConnection = (url: string, token: string, sessionId: string) => {
   const { processAiAction } = useWhiteboardStore();
+  // Gunakan useRef untuk menyimpan instance room agar stabil
+  const roomRef = useRef<Room | null>(null);
 
   useEffect(() => {
     const room = new Room();
+    roomRef.current = room;
 
     const connect = async () => {
       try {
@@ -18,15 +21,20 @@ export const useLiveKitConnection = (url: string, token: string, sessionId: stri
 
         room.on(RoomEvent.DataReceived, (
             payload: Uint8Array, 
-            participant?: Participant, 
-            kind?: DataPacket_Kind
+            _participant?: Participant, 
+            _kind?: DataPacket_Kind
         ) => {
           const decoder = new TextDecoder();
           const strData = decoder.decode(payload);
           const action = parseAiData(strData);
 
+          // Pastikan action valid dan sessionId cocok
           if (action && action.sessionId === sessionId) {
-            processAiAction(action);
+            /** * TYPE GUARD: 
+             * Kita konversi action dari parser menjadi WhiteboardAction 
+             * yang dikenal oleh Zustand store kita.
+             */
+            processAiAction(action as unknown as WhiteboardAction);
           }
         });
       } catch (e) {
@@ -36,10 +44,14 @@ export const useLiveKitConnection = (url: string, token: string, sessionId: stri
 
     connect();
 
+    // Cleanup: Pastikan disconnect dipanggil saat unmount
     return () => { 
-      room.disconnect(); 
+      if (roomRef.current) {
+        roomRef.current.disconnect();
+        roomRef.current = null;
+      }
     };
   }, [url, token, sessionId, processAiAction]);
 
-  return { room: null }; 
+  return { room: roomRef.current }; 
 };
