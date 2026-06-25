@@ -1,0 +1,42 @@
+
+.react-flow {
+  background-color: #f8fafc;
+}
+
+.symptom-node-style {
+  background: white;
+  border-left: 4px solid #3b82f6; 
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  transition: transform 0.2s ease;
+}
+
+.symptom-node-style:hover {
+  transform: scale(1.02);
+}
+
+.diagnosis-node-style {
+  background: #fff1f2; 
+  border: 2px solid #ef4444;
+  box-shadow: 0 10px 15px -3px rgb(239 68 68 / 0.2);
+}
+
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+  background: #64748b;
+  border: 2px solid white;
+}
+
+.react-flow__edge-path {
+  stroke: #94a3b8;
+  stroke-width: 2;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

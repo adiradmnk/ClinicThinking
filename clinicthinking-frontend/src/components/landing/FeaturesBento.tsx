@@ -92,7 +92,7 @@ export function FeaturesBento() {
         <div className="relative z-10 flex flex-col items-center px-6">
           <Text3DFlip
             as="h2"
-            className="text-4xl font-serif text-center max-w-[600px] leading-tight"
+            className="text-4xl font-serif font-bold text-center max-w-[600px] leading-tight"
             rotateDirection="top" // Efek flip ke atas
             staggerFrom="center"  // Animasi mulai dari tengah teks
           >
