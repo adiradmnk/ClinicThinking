@@ -15,18 +15,7 @@ export default function RegisterPage() {
   const handleRegister = async () => {
     setLoading(true);
 
-    // TODO: sambungin ke backend nanti
-    // const res = await fetch("http://localhost:8000/auth/register", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ name, email, password, institution }),
-    // });
-    // const data = await res.json();
-    // if (res.ok) {
-    //   window.location.href = "/auth/login";
-    // } else {
-    //   alert(data.message);
-    // }
+    // TO DO: harus sambungin ke backend nanti
 
     console.log("Register:", name, email, password, institution);
     setLoading(false);

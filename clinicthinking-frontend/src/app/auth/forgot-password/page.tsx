@@ -11,18 +11,7 @@ export default function ForgotPasswordPage() {
   const handleSubmit = async () => {
     setLoading(true);
 
-    // TODO: sambungin ke backend nanti
-    // const res = await fetch("http://localhost:8000/auth/forgot-password", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ email }),
-    // });
-    // const data = await res.json();
-    // if (res.ok) {
-    //   setSent(true);
-    // } else {
-    //   alert(data.message);
-    // }
+    // TODO: harus sambungin ke backend nanti
 
     console.log("Forgot password untuk:", email);
     setSent(true);

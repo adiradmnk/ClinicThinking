@@ -14,20 +14,6 @@ export default function LoginPage() {
     setLoading(true);
 
     // TODO: sambungin ke backend nanti
-    // caranya ganti bagian ini dengan:
-    //
-    // const res = await fetch("http://localhost:8000/auth/login", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ email, password }),
-    // });
-    // const data = await res.json();
-    // if (res.ok) {
-    //   localStorage.setItem("token", data.token);
-    //   window.location.href = "/dashboard";
-    // } else {
-    //   alert(data.message);
-    // }
 
     console.log("Login dengan:", email, password);
     setLoading(false);
