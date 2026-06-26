@@ -13,10 +13,24 @@ export default function LoginPage() {
   const handleLogin = async () => {
     setLoading(true);
 
-    // TODO: sambungin ke backend nanti
-
-    console.log("Login dengan:", email, password);
-    setLoading(false);
+    try {
+      const res = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem("token", data.data.token);
+        window.location.href = "/dashboard";
+      } else {
+        alert(data.message || "Login gagal");
+      }
+    } catch (err) {
+      alert("Tidak dapat terhubung ke server");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -66,6 +80,7 @@ export default function LoginPage() {
             </div>
             </div>
 
+        {/*
           <div className="text-right">
             <Link
               href="/auth/forgot-password"
@@ -74,7 +89,8 @@ export default function LoginPage() {
               Lupa password?
             </Link>
           </div>
-
+        */}
+        
           <button
             onClick={handleLogin}
             disabled={loading}

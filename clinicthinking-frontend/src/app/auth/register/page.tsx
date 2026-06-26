@@ -15,11 +15,24 @@ export default function RegisterPage() {
   const handleRegister = async () => {
     setLoading(true);
 
-    // TO DO: harus sambungin ke backend nanti
-
-    console.log("Register:", name, email, password, institution);
-    setLoading(false);
-  };
+    try {
+      const res = await fetch("http://localhost:8080/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, full_name: name, institution }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        window.location.href = "/auth/login";
+    } else {
+        alert(data.message || "Registrasi gagal");
+    }
+    } catch (err) {
+        alert("Tidak dapat terhubung ke server");
+    } finally {
+        setLoading(false);
+    }
+    };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 to-blue-100">
@@ -105,7 +118,7 @@ export default function RegisterPage() {
 
         {/* Login link */}
         <p className="text-center text-sm text-gray-500 mt-6">
-          Udah punya akun?{" "}
+          Sudah punya akun?{" "}
           <Link href="/auth/login" className="text-teal-600 font-medium hover:underline">
             Masuk di sini
           </Link>
