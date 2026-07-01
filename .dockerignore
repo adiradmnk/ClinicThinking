@@ -1,0 +1,13 @@
+# .dockerignore (Frontend)
+.git
+.gitignore
+.env
+clinicthinking-frontend/node_modules/
+dist/
+build/
+clinicthinking-frontend/.next/
+.cache/
+coverage/
+*.log
+.vscode/
+.idea/
