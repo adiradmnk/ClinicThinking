@@ -7,36 +7,47 @@ import { parseAiData } from '@/lib/data-parser';
 
 export const useLiveKitConnection = (url: string, token: string, sessionId: string) => {
   const { processAiAction } = useWhiteboardStore();
-  // Gunakan useRef untuk menyimpan instance room agar stabil
   const roomRef = useRef<Room | null>(null);
 
   useEffect(() => {
+    // 1. Inisialisasi Room
     const room = new Room();
     roomRef.current = room;
 
+    const handleDataReceived = (payload: Uint8Array) => {
+      const decoder = new TextDecoder();
+      const strData = decoder.decode(payload);
+      
+      // 1. Parse string JSON menjadi object biasa (any) terlebih dahulu
+      const rawData = JSON.parse(strData);
+      
+      // 2. Lakukan pengecekan sessionId (sesuai logika kamu sebelumnya)
+      // Catatan: Pastikan AI kamu juga mengirimkan sessionId di dalam payload JSON-nya
+      if (rawData && (rawData.sessionId === sessionId || !rawData.sessionId)) {
+        
+        // 3. Kirim bagian 'actions' ke store whiteboard kamu
+        if (rawData.actions) {
+          processAiAction(rawData as unknown as WhiteboardAction);
+        }
+
+        // 4. Ambil properti 'text' dengan aman untuk Web Speech API (TTS)
+        if (rawData.text) {
+          const speech = new SpeechSynthesisUtterance(rawData.text);
+          speech.lang = 'id-ID'; // Set suara Bahasa Indonesia
+          speech.rate = 1.0;     // Kecepatan bicara normal
+          window.speechSynthesis.speak(speech);
+        }
+      }
+    };
+
+    // 3. Pasang listener SEBELUM koneksi
+    room.on(RoomEvent.DataReceived, handleDataReceived);
+
+    // 4. Koneksi
     const connect = async () => {
       try {
         await room.connect(url, token);
         console.log("LiveKit connected to session:", sessionId);
-
-        room.on(RoomEvent.DataReceived, (
-            payload: Uint8Array, 
-            _participant?: Participant, 
-            _kind?: DataPacket_Kind
-        ) => {
-          const decoder = new TextDecoder();
-          const strData = decoder.decode(payload);
-          const action = parseAiData(strData);
-
-          // Pastikan action valid dan sessionId cocok
-          if (action && action.sessionId === sessionId) {
-            /** * TYPE GUARD: 
-             * Kita konversi action dari parser menjadi WhiteboardAction 
-             * yang dikenal oleh Zustand store kita.
-             */
-            processAiAction(action as unknown as WhiteboardAction);
-          }
-        });
       } catch (e) {
         console.error("LiveKit connection error:", e);
       }
@@ -44,12 +55,11 @@ export const useLiveKitConnection = (url: string, token: string, sessionId: stri
 
     connect();
 
-    // Cleanup: Pastikan disconnect dipanggil saat unmount
-    return () => { 
-      if (roomRef.current) {
-        roomRef.current.disconnect();
-        roomRef.current = null;
-      }
+    // 5. Cleanup yang rapi
+    return () => {
+      room.off(RoomEvent.DataReceived, handleDataReceived); // Hapus listener
+      room.disconnect();                                     // Putus koneksi
+      roomRef.current = null;
     };
   }, [url, token, sessionId, processAiAction]);
 

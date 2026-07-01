@@ -10,7 +10,6 @@ const features = [
     name: "AI Anamnesis",
     description: "Data medis terstruktur otomatis.",
     className: "col-span-3 lg:col-span-1 min-h-[300px] rounded-none",
-    // Masukkan Lottie di sini
     background: (
       <div className="absolute inset-0 flex items-center justify-center opacity-80">
         <DotLottieReact

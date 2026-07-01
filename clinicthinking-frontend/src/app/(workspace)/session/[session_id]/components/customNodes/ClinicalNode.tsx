@@ -1,146 +1,201 @@
-// frontend/src/components/whiteboard/ClinicalNode.tsx
-// Custom React Flow node — tampil berbeda per tipe klinis
-// Mendukung: symptom, risk_factor, hypothesis, finding, bias_flag, missing
-
-import React, { memo } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import { Handle, Position, NodeProps } from 'reactflow'
 import { ClinicalNodeData, NodeCategory } from '@/store/useWhiteboardStore'
 
-// ─── Visual Config per Node Type ─────────────────────────────────
+
 const NODE_CONFIG: Record<NodeCategory, {
-  bg: string; border: string; text: string
+  accent: string; tint: string; text: string
   icon: string; label: string
 }> = {
   symptom: {
-    bg: '#eff6ff', border: '#3b82f6', text: '#1e40af',
+    accent: '#3b82f6', tint: '#eff6ff', text: '#1e3a8a',
     icon: '🩺', label: 'Gejala',
   },
   risk_factor: {
-    bg: '#fef9c3', border: '#eab308', text: '#854d0e',
+    accent: '#eab308', tint: '#fefce8', text: '#713f12',
     icon: '⚠️', label: 'Faktor Risiko',
   },
   hypothesis: {
-    bg: '#f0fdf4', border: '#22c55e', text: '#14532d',
+    accent: '#22c55e', tint: '#f0fdf4', text: '#14532d',
     icon: '🧠', label: 'Hipotesis',
   },
   finding: {
-    bg: '#faf5ff', border: '#a855f7', text: '#581c87',
+    accent: '#a855f7', tint: '#faf5ff', text: '#581c87',
     icon: '🔬', label: 'Temuan',
   },
   missing: {
-    bg: '#fff7ed', border: '#f97316', text: '#7c2d12',
+    accent: '#f97316', tint: '#fff7ed', text: '#7c2d12',
     icon: '❓', label: 'Belum Digali',
   },
   bias_flag: {
-    bg: '#fef2f2', border: '#ef4444', text: '#7f1d1d',
+    accent: '#ef4444', tint: '#fef2f2', text: '#7f1d1d',
     icon: '🚨', label: 'Bias Terdeteksi',
   },
+}
+
+const BIAS_ACCENT = '#ef4444'
+const HINT_ACCENT = '#f97316'
+
+// Inject keyframes once for the whole app, not once per node instance.
+let stylesInjected = false
+function ensureGlobalStyles() {
+  if (stylesInjected || typeof document === 'undefined') return
+  stylesInjected = true
+  const style = document.createElement('style')
+  style.setAttribute('data-clinical-node-styles', 'true')
+  style.textContent = `
+    @keyframes clinicalNodeHintPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(249,115,22,0.32), 0 6px 16px rgba(15,23,42,0.06); }
+      50% { box-shadow: 0 0 0 6px rgba(249,115,22,0.14), 0 6px 16px rgba(15,23,42,0.06); }
+    }
+    @keyframes clinicalNodeBiasPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.35), 0 6px 16px rgba(15,23,42,0.07); }
+      50% { box-shadow: 0 0 0 7px rgba(239,68,68,0.16), 0 6px 16px rgba(15,23,42,0.07); }
+    }
+  `
+  document.head.appendChild(style)
 }
 
 interface ClinicalNodeProps extends NodeProps<ClinicalNodeData> {}
 
 export const ClinicalNode = memo(({ data, selected }: ClinicalNodeProps) => {
+  const [isHovered, setIsHovered] = useState(false)
+  useEffect(() => { ensureGlobalStyles() }, [])
+
   const config = NODE_CONFIG[data.type] || NODE_CONFIG.finding
-  const isBiased = data.isBiased
-  const isHinted = data.isHinted
+  const isBiased = !!data.isBiased
+  const isHinted = !!data.isHinted && !isBiased
+
+  const accent = isBiased ? BIAS_ACCENT : isHinted ? HINT_ACCENT : config.accent
+  const displayIcon = isBiased ? '🚨' : config.icon
+  const displayLabel = isBiased ? 'Bias Terdeteksi' : config.label
+
+  // Base elevation; hover/selected/state add on top of this rather than replacing it.
+  const baseShadow = '0 1px 2px rgba(15,23,42,0.04), 0 1px 3px rgba(15,23,42,0.06)'
+  const hoverShadow = '0 4px 10px rgba(15,23,42,0.08), 0 2px 4px rgba(15,23,42,0.06)'
+  const selectedRing = `0 0 0 3px ${accent}33`
+
+  let boxShadow = baseShadow
+  if (selected) boxShadow = `${selectedRing}, ${hoverShadow}`
+  else if (isHovered) boxShadow = hoverShadow
+
+  const animation = isBiased
+    ? 'clinicalNodeBiasPulse 1.8s ease-in-out infinite'
+    : isHinted
+    ? 'clinicalNodeHintPulse 1.8s ease-in-out infinite'
+    : undefined
 
   return (
     <div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
-        background: isBiased ? '#fef2f2' : config.bg,
-        border: `2px solid ${isBiased ? '#ef4444' : isHinted ? '#f97316' : config.border}`,
-        borderRadius: 10,
-        padding: '8px 12px',
-        minWidth: 140,
-        maxWidth: 180,
-        boxShadow: selected
-          ? `0 0 0 3px ${config.border}40, 0 4px 12px rgba(0,0,0,0.1)`
-          : isBiased
-          ? '0 0 0 3px #ef444440, 0 2px 8px rgba(239,68,68,0.2)'
-          : isHinted
-          ? '0 0 0 3px #f9741640, 0 2px 8px rgba(249,115,22,0.2)'
-          : '0 2px 8px rgba(0,0,0,0.08)',
-        transition: 'all 0.25s ease',
         position: 'relative',
-        animation: isHinted ? 'pulse 1.5s ease-in-out infinite' : 'none',
+        minWidth: 168,
+        maxWidth: 216,
+        borderRadius: 14,
+        padding: '10px 13px 12px',
+        background: `linear-gradient(165deg, ${config.tint} 0%, #ffffff 62%)`,
+        border: `1px solid ${isBiased || isHinted ? `${accent}55` : `${accent}30`}`,
+        boxShadow: animation ? undefined : boxShadow,
+        transform: isHovered && !isBiased ? 'translateY(-2px)' : 'translateY(0)',
+        transition: 'transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease',
+        animation,
+        fontFamily: "'Inter', -apple-system, sans-serif",
+        cursor: 'default',
       }}
     >
-      {/* Type badge */}
-      <div style={{
-        position: 'absolute',
-        top: -10,
-        left: 8,
-        background: isBiased ? '#ef4444' : config.border,
-        color: 'white',
-        fontSize: 9,
-        fontWeight: 700,
-        letterSpacing: '0.04em',
-        padding: '1px 6px',
-        borderRadius: 4,
-        textTransform: 'uppercase',
-      }}>
-        {isBiased ? 'BIAS' : config.label}
-      </div>
-
-      {/* Icon + Label */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginTop: 4 }}>
-        <span style={{ fontSize: 14, flexShrink: 0 }}>{isBiased ? '🚨' : config.icon}</span>
-        <span style={{
-          color: isBiased ? '#7f1d1d' : config.text,
-          fontSize: 12,
-          fontWeight: 600,
-          lineHeight: 1.4,
-          fontFamily: "'Inter', sans-serif",
-        }}>
-          {data.label}
-        </span>
-      </div>
-
-      {/* Turn indicator */}
-      {data.addedAtTurn !== undefined && (
-        <div style={{
-          position: 'absolute',
-          bottom: -8,
-          right: 6,
-          background: '#e5e7eb',
-          color: '#6b7280',
-          fontSize: 8,
-          fontWeight: 600,
-          padding: '1px 5px',
-          borderRadius: 3,
-        }}>
-          T{data.addedAtTurn}
-        </div>
-      )}
-
-      {/* Checklist ref badge */}
-      {data.checklistRef && (
-        <div style={{
-          position: 'absolute',
-          bottom: -8,
-          left: 6,
-          background: config.border,
-          color: 'white',
-          fontSize: 8,
+      {/* Top chip: icon + category label, sits inline (no overflow) */}
+      <div
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 4,
+          background: isBiased ? accent : `${accent}1a`,
+          color: isBiased ? '#ffffff' : config.text,
+          fontSize: 9.5,
           fontWeight: 700,
-          padding: '1px 5px',
-          borderRadius: 3,
-          opacity: 0.8,
-        }}>
-          {data.checklistRef}
+          letterSpacing: '0.03em',
+          textTransform: 'uppercase',
+          padding: '2.5px 7px',
+          borderRadius: 6,
+          marginBottom: 7,
+        }}
+      >
+        <span style={{ fontSize: 11, lineHeight: 1 }}>{displayIcon}</span>
+        {displayLabel}
+      </div>
+
+      {/* Main label */}
+      <div
+        style={{
+          color: '#0f172a',
+          fontSize: 12.5,
+          fontWeight: 600,
+          lineHeight: 1.45,
+          letterSpacing: '-0.005em',
+        }}
+      >
+        {data.label}
+      </div>
+
+      {/* Footer row: checklist ref (left) + turn indicator (right) */}
+      {(data.checklistRef || data.addedAtTurn !== undefined) && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginTop: 8,
+            paddingTop: 6,
+            borderTop: '1px solid rgba(15,23,42,0.06)',
+          }}
+        >
+          <span
+            style={{
+              fontSize: 9,
+              fontWeight: 700,
+              color: accent,
+              opacity: 0.85,
+            }}
+          >
+            {data.checklistRef || ''}
+          </span>
+          {data.addedAtTurn !== undefined && (
+            <span
+              style={{
+                fontSize: 9,
+                fontWeight: 600,
+                color: '#94a3b8',
+              }}
+            >
+              T{data.addedAtTurn}
+            </span>
+          )}
         </div>
       )}
 
-      {/* React Flow handles */}
       <Handle
         type="target"
         position={Position.Left}
-        style={{ background: config.border, width: 8, height: 8, border: '2px solid white' }}
+        style={{
+          background: accent,
+          width: 8,
+          height: 8,
+          border: '2px solid #ffffff',
+          boxShadow: '0 1px 2px rgba(15,23,42,0.15)',
+        }}
       />
       <Handle
         type="source"
         position={Position.Right}
-        style={{ background: config.border, width: 8, height: 8, border: '2px solid white' }}
+        style={{
+          background: accent,
+          width: 8,
+          height: 8,
+          border: '2px solid #ffffff',
+          boxShadow: '0 1px 2px rgba(15,23,42,0.15)',
+        }}
       />
     </div>
   )

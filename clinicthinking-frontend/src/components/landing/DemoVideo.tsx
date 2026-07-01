@@ -7,7 +7,6 @@ export default function DemoVideo() {
 
   return (
     <section className="py-20 px-6 border-t border-b border-l border-r border-black/20">
-      {/* Container utama dengan background image */}
       <div 
         className="w-full max-w-6xl mx-auto h-[400px] relative rounded-none overflow-hidden flex items-center bg-cover bg-center"
         style={{ backgroundImage: "url('/mintbeach.png')" }} // Ganti dengan path gambarmu

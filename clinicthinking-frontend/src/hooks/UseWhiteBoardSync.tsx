@@ -1,29 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
-import { useWhiteboardStore } from '@/store/useWhiteboardStore';
-
-
-export const useWhiteboardSync = (sessionId: string) => {
-  const { nodes, edges } = useWhiteboardStore();
-  const isInitialized = useRef(false);
-
-  useEffect(() => {
-    const savedData = localStorage.getItem(`whiteboard-${sessionId}`);
-    if (savedData && !isInitialized.current) {
-      const { savedNodes, savedEdges } = JSON.parse(savedData);
-      useWhiteboardStore.getState().onNodesChange(savedNodes);
-      useWhiteboardStore.getState().onEdgesChange(savedEdges);
-      isInitialized.current = true;
-    }
-  }, [sessionId]);
-
-  useEffect(() => {
-    if (nodes.length > 0 || edges.length > 0) {
-      localStorage.setItem(
-        `whiteboard-${sessionId}`, 
-        JSON.stringify({ savedNodes: nodes, savedEdges: edges })
-      );
-    }
-  }, [nodes, edges, sessionId]);
+/**
+ * useWhiteboardSync — DEPRECATED
+ * 
+ * Hook ini sebelumnya memasang listener DataReceived untuk whiteboard.
+ * Setelah refactor (Bug 3 fix), semua listener DataReceived dikonsolidasikan
+ * ke RoomContent di page.tsx untuk menghindari duplikasi pemrosesan pesan.
+ * 
+ * File ini dipertahankan untuk kompatibilitas import, tapi hook tidak melakukan apa-apa.
+ * Import di WhiteboardContainer sudah dihapus.
+ */
+export const useWhiteboardSync = (_sessionId: string) => {
+  // Tidak ada listener di sini — semuanya ada di page.tsx (RoomContent)
 };

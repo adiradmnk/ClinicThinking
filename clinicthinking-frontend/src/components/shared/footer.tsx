@@ -1,3 +1,4 @@
+import Link from "next/link";
 export default function Footer() {
   return (
     <footer className="">
@@ -15,9 +16,11 @@ export default function Footer() {
         <div className="space-y-4">
           <h3 className="font-semibold text-neutral-900">Platform</h3>
           <ul className="space-y-3 text-sm text-neutral-500">
-            <li className="hover:text-black transition cursor-pointer">Login</li>
-            <li className="hover:text-black transition cursor-pointer">Register</li>
-            <li className="hover:text-black transition cursor-pointer">Product</li>
+            <Link href="/auth/login" className="hover:text-black transition cursor-pointer">Login</Link>
+            <li className=""></li>
+            <Link href="/auth/register" className="hover:text-black transition cursor-pointer">Register</Link>
+            <li className=""></li>
+            <Link href="/product" className="hover:text-black transition cursor-pointer">Product</Link>
           </ul>
         </div>
 

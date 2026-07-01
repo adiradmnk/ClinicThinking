@@ -17,9 +17,9 @@ export default function RootLayout({
 }) {
   return (
     // 2. Terapkan variabel font ke tag <html>
-    <html lang="id" className={cn(serif.variable, "font-sans", geist.variable)}>
+    <html lang="id" className={cn(serif.variable, "font-sans", geist.variable)} suppressHydrationWarning={true}>
       {/* 3. Terapkan font default ke body (biasanya font sans) */}
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased" suppressHydrationWarning={true}>
         {children}
       </body>
     </html>

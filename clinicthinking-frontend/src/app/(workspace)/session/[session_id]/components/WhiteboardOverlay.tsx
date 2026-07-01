@@ -4,12 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useWhiteboardStore } from '@/store/useWhiteboardStore';
 
 export default function WhiteboardOverlay({ isLoading, error }: { isLoading: boolean, error?: string }) {
-  const { hintQueue, biasEvents, dismissHint } = useWhiteboardStore();
+  const { hintQueue, biasEvents, dismissHint, dismissBias } = useWhiteboardStore();
 
   return (
     <div className="absolute inset-0 z-50 pointer-events-none p-6">
       
-      {/* 1. LAYER LOADING & ERROR (Full Screen Center) */}
       <AnimatePresence>
         {(isLoading || error) && (
           <motion.div 
@@ -32,14 +31,12 @@ export default function WhiteboardOverlay({ isLoading, error }: { isLoading: boo
         )}
       </AnimatePresence>
 
-      {/* 2. LAYER NOTIFIKASI AI (Pojok Kanan Atas) */}
-      <div className="absolute top-4 right-4 flex flex-col gap-3 w-80 pointer-events-none">
+      <div className="absolute bottom-6 left-6 flex flex-col-reverse gap-3 w-80 pointer-events-none z-50">
         <AnimatePresence>
-          {/* Hint AI */}
           {hintQueue.map((hint) => (
             <motion.div 
               key={hint.id}
-              initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }}
+              initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}
               className="pointer-events-auto bg-amber-50 border border-amber-200 p-4 rounded-xl shadow-lg"
             >
               <div className="flex justify-between items-center mb-2">
@@ -50,15 +47,15 @@ export default function WhiteboardOverlay({ isLoading, error }: { isLoading: boo
             </motion.div>
           ))}
 
-          {/* Bias AI */}
           {biasEvents.map((bias) => (
             <motion.div 
               key={bias.id}
-              initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }}
+              initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}
               className="pointer-events-auto bg-rose-50 border border-rose-200 p-4 rounded-xl shadow-lg"
             >
               <div className="flex justify-between items-center mb-2">
                 <span className="text-[10px] font-bold text-rose-700 uppercase">🚨 Bias: {bias.biasType}</span>
+                <button onClick={() => dismissBias(bias.id)} className="text-rose-500 hover:text-rose-700 font-bold">✕</button>
               </div>
               <p className="text-sm text-rose-900 font-bold mb-1">{bias.description}</p>
             </motion.div>

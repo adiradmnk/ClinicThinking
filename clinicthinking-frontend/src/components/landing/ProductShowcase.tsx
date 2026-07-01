@@ -10,6 +10,7 @@ export default function ProductShowcase() {
         <Safari 
           url="clinicthinking.com"// Pastikan gambar ini ada di folder public
           className="shadow-2xl rounded-xl"
+          videoSrc="/video/productdemo.mov"
         />
         
       </div>

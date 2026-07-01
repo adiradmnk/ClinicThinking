@@ -1,4 +1,3 @@
-// src/app/page.tsx
 "use client";
 import { useState } from "react";
 import { Navbar, NavBody, NavItems, NavbarLogo, NavbarButton, MobileNav, MobileNavHeader, MobileNavToggle, MobileNavMenu } from "@/components/ui/resizable-navbar";
@@ -11,10 +10,11 @@ import Team from "@/components/landing/team";
 import DemoVideo from "@/components/landing/DemoVideo";
 import ReadyToLearn from "@/components/landing/ReadyToLearn";
 import Trustedn from "@/components/landing/TrustedBy";
+import Link from "next/link";
 
 
 export default function LandingPage() {
-  const [isOpen, setIsOpen] = useState(false); // Tambahkan state ini di atas return
+  const [isOpen, setIsOpen] = useState(false);
   const navItems = [
     { name: "About", link: "#about" },
     { name: "Product", link: "#product" },
@@ -24,9 +24,13 @@ export default function LandingPage() {
     <main className="text-black font-serif"> {/* Tambahkan background gelap sebagai base */}
       <Navbar>
         <NavBody>
-          <NavbarLogo />
+          <Link href="/" passHref legacyBehavior>
+            <NavbarLogo />
+          </Link>
           <NavItems items={navItems} />
-          <NavbarButton variant="primary">Login</NavbarButton>
+            <Link href="/auth/login" passHref>
+              <NavbarButton variant="primary">Login</NavbarButton>
+            </Link>
         </NavBody>
         
         {/* Mobile View */}
@@ -39,7 +43,9 @@ export default function LandingPage() {
             {navItems.map((item) => (
                <a key={item.name} href={item.link} className="px-4 py-2 text-black dark:text-white">{item.name}</a>
             ))}
-            <NavbarButton variant="dark" className="w-full">Login</NavbarButton>
+            <Link href="/auth/login" passHref>
+              <NavbarButton variant="dark" className="w-full">Login</NavbarButton>
+            </Link>
           </MobileNavMenu>
         </MobileNav>
       </Navbar>

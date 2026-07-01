@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+*.log
+npm-debug.log*
+
+# Jangan bawa env files ke dalam Docker image
+# Runtime env vars harus dari docker-compose.yml environment section
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

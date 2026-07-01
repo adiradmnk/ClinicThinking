@@ -1,7 +1,7 @@
 
 
 export interface AIAction {
-  type: 'add_node' | 'add_edge' | 'update_node' | 'delete_node';
+  type: 'add_node' | 'add_edge' | 'update_node' | 'delete_node' | 'trigger_hint' | 'flag_bias' | 'update_hypothesis' | 'no_action';
   sessionId: string;
   data: any;
 }
@@ -9,21 +9,14 @@ export interface AIAction {
 export const parseAiData = (rawJson: string): AIAction | null => {
   try {
     const action = JSON.parse(rawJson);
+    if (!action.type) return null; 
 
-    if (!action.type || !action.sessionId || !action.data) {
-      console.warn("Data AI tidak valid: Format JSON tidak lengkap.", action);
-      return null;
-    }
-
-    const validTypes = ['add_node', 'add_edge', 'update_node', 'delete_node'];
-    if (!validTypes.includes(action.type)) {
-      console.warn("Data AI tidak valid: Tipe action tidak dikenal.", action.type);
-      return null;
-    }
-
-    return action as AIAction;
+    return {
+        type: action.type,
+        sessionId: action.sessionId || "default",
+        data: action.data || {}
+    } as AIAction;
   } catch (error) {
-    console.error("Gagal parsing JSON dari AI:", error);
     return null;
   }
 };
